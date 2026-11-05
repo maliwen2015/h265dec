@@ -208,9 +208,27 @@ CLIP=testdata/bench_1080p.h265 REPS=3 sh tests/bench_compare.sh
 CLIP=testdata/bench_p720.h265 REPS=3 sh tests/bench_compare.sh
 ```
 
-Against FFmpeg with all SIMD disabled (`-cpuflags 0`) this decoder is
-1.19–1.43x faster; with its own SIMD disabled it is roughly at parity
-(0.95–1.16x).  Details are in `ANALYSIS.md`.
+Against FFmpeg 9.0.2 with all SIMD disabled (`-cpuflags 0`), measured in the
+same session with this decoder on its normal path and on its own C fallback
+(`H265_DISABLE_SIMD=1`), medians of five alternating runs:
+
+| clip | threads | h265dec | h265dec no-SIMD | FFmpeg 9.0.2 no-SIMD | SIMD / FFmpeg no-SIMD | no-SIMD / FFmpeg no-SIMD |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| 720p | 1 | 396 | 292 | 289 | 1.37 | 1.01 |
+| 720p | 4 | 943 | 694 | 682 | 1.38 | 1.02 |
+| 720p | 8 | 1007 | 805 | 811 | 1.24 | 0.99 |
+| 1080p | 1 | 183 | 146 | 122 | 1.50 | 1.20 |
+| 1080p | 4 | 398 | 302 | 277 | 1.44 | 1.09 |
+| 1080p | 8 | 419 | 334 | 310 | 1.35 | 1.07 |
+| P720 | 1 | 322 | 226 | 226 | 1.42 | 1.00 |
+| P720 | 4 | 452 | 358 | 371 | 1.22 | 0.96 |
+| P720 | 8 | 513 | 402 | 423 | 1.21 | 0.95 |
+
+With SIMD this decoder is 1.21–1.50x faster than FFmpeg without SIMD; on the
+pure C path the two are within a few percent (0.95–1.20x).  SIMD buys this
+decoder 1.2–1.5x over its own scalar path, so the remaining gap to FFmpeg's
+assembly comes from its hand-written kernels rather than the algorithms.
+Details are in `ANALYSIS.md`.
 
 Single-thread time is still dominated by CABAC entropy decoding; the
 reconstruction kernels are now on par with FFmpeg's assembly.  The
