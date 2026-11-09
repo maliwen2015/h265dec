@@ -577,14 +577,23 @@ static int handle_vcl(H265Decoder *h, int nal_type, int temporal_id,
                 uint8_t *e1 = sh->edge_emu_buffer;
                 uint8_t *e2 = sh->edge_emu_buffer2;
                 int16_t *tmp = sh->tmp;
+                int *new_epb = sh->epb_pos;
+                int new_nb_epb = sh->nb_epb;
                 *sh = h->cur_sh;
                 sh->edge_emu_buffer = e1;
                 sh->edge_emu_buffer2 = e2;
                 sh->tmp = tmp;
+                /* The header template still references the previous slice's
+                 * emulation-prevention table; this slice owns the one
+                 * allocated for its own RBSP. */
+                sh->epb_pos = new_epb;
+                sh->nb_epb = new_nb_epb;
+                sh->owns_epb = 1;
             }
             sh->h = h;
             sh->rbsp = (uint8_t *)rbsp;
             sh->rbsp_size = rbsp_size;
+            sh->owns_rbsp = 1;
             sh->entry_point_offset = NULL;
             sh->offset = NULL;
             sh->size = NULL;

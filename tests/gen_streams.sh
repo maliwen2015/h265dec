@@ -18,6 +18,7 @@ gen() {
 gen b_frames        yuv420p    "keyint=60:min-keyint=1:bframes=4:b-adapt=0"
 gen slices          yuv420p    "keyint=30:min-keyint=1:bframes=3:slices=4"
 gen slices8         yuv420p    "keyint=30:min-keyint=1:bframes=0:slices=8"
+gen slices422_10    yuv422p10le "keyint=30:min-keyint=1:bframes=3:slices=2"
 gen tiles           yuv420p    "keyint=30:min-keyint=1:bframes=0:tile-columns=2:tile-rows=1"
 gen tiles_slices    yuv420p    "keyint=30:min-keyint=1:bframes=0:tile-columns=2:slices=4"
 gen nowpp           yuv420p    "keyint=30:min-keyint=1:bframes=0:no-wpp=1"
